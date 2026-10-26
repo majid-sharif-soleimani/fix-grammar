@@ -25,7 +25,9 @@ public class MainActivity extends Activity {
 
         TextView intro = new TextView(this);
         intro.setText("Select text in any app and choose \"Fix Grammar\" from the menu "
-                + "(it may be under ⋮ / More). The corrected text replaces your selection.");
+                + "(it may be under ⋮ / More). The corrected text replaces your selection.\n\n"
+                + "If an app doesn't show it, select the text and use Share → Fix Grammar. "
+                + "The corrected text is copied so you can paste it back.");
         intro.setTextSize(15);
         intro.setPadding(0, 0, 0, pad);
         root.addView(intro);

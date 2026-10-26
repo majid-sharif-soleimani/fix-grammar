@@ -27,8 +27,14 @@ public class FixGrammarActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        CharSequence selected = getIntent().getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT);
-        final boolean readOnly = getIntent().getBooleanExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, false);
+        Intent in = getIntent();
+        final boolean shared = Intent.ACTION_SEND.equals(in.getAction());
+        CharSequence selected = shared
+                ? in.getCharSequenceExtra(Intent.EXTRA_TEXT)
+                : in.getCharSequenceExtra(Intent.EXTRA_PROCESS_TEXT);
+        // Shared text can't be replaced in place, so treat it as read-only (show + copy).
+        final boolean readOnly = shared
+                || in.getBooleanExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, false);
 
         if (selected == null || selected.toString().trim().isEmpty()) {
             finish();
@@ -90,8 +96,12 @@ public class FixGrammarActivity extends Activity {
             return;
         }
 
+        // Copy right away so the user can paste it back immediately.
+        ClipboardManager clip = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        clip.setPrimaryClip(ClipData.newPlainText("Fixed text", fixed));
+
         new AlertDialog.Builder(this)
-                .setTitle("Corrected text")
+                .setTitle("Corrected text (copied)")
                 .setMessage(fixed)
                 .setPositiveButton("Copy", (d, w) -> {
                     ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
