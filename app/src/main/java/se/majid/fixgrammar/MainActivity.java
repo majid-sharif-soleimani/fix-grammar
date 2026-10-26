@@ -26,8 +26,10 @@ public class MainActivity extends Activity {
         TextView intro = new TextView(this);
         intro.setText("Select text in any app and choose \"Fix Grammar\" from the menu "
                 + "(it may be under ⋮ / More). The corrected text replaces your selection.\n\n"
-                + "If an app doesn't show it, select the text and use Share → Fix Grammar. "
-                + "The corrected text is copied so you can paste it back.");
+                + "If an app doesn't show it (e.g. Gmail): Copy the text, pull down the "
+                + "Quick Settings panel and tap the \"Fix Grammar\" tile, then Paste. "
+                + "Add the tile once via the panel's edit (pencil / + ) button.\n\n"
+                + "You can also use Share → Fix Grammar; the result is copied to the clipboard.");
         intro.setTextSize(15);
         intro.setPadding(0, 0, 0, pad);
         root.addView(intro);

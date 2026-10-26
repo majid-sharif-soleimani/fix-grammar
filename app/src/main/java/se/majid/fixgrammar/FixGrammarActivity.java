@@ -28,6 +28,13 @@ public class FixGrammarActivity extends Activity {
         super.onCreate(savedInstanceState);
 
         Intent in = getIntent();
+        if (ACTION_FIX_CLIPBOARD.equals(in.getAction())) {
+            // Android only lets an app read the clipboard while it has focus,
+            // so wait for onWindowFocusChanged before reading it.
+            clipboardMode = true;
+            return;
+        }
+
         final boolean shared = Intent.ACTION_SEND.equals(in.getAction());
         CharSequence selected = shared
                 ? in.getCharSequenceExtra(Intent.EXTRA_TEXT)
@@ -35,7 +42,33 @@ public class FixGrammarActivity extends Activity {
         // Shared text can't be replaced in place, so treat it as read-only (show + copy).
         final boolean readOnly = shared
                 || in.getBooleanExtra(Intent.EXTRA_PROCESS_TEXT_READONLY, false);
+        start(selected, readOnly);
+    }
 
+    static final String ACTION_FIX_CLIPBOARD = "se.majid.fixgrammar.FIX_CLIPBOARD";
+    private boolean clipboardMode;
+    private boolean clipboardRead;
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+        super.onWindowFocusChanged(hasFocus);
+        if (!clipboardMode || clipboardRead || !hasFocus) return;
+        clipboardRead = true;
+        CharSequence text = null;
+        ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        ClipData clip = cm.getPrimaryClip();
+        if (clip != null && clip.getItemCount() > 0) {
+            text = clip.getItemAt(0).coerceToText(this);
+        }
+        if (text == null || text.toString().trim().isEmpty()) {
+            Toast.makeText(this, "Clipboard is empty. Copy some text first.", Toast.LENGTH_LONG).show();
+            finish();
+            return;
+        }
+        start(text, true);
+    }
+
+    private void start(CharSequence selected, final boolean readOnly) {
         if (selected == null || selected.toString().trim().isEmpty()) {
             finish();
             return;

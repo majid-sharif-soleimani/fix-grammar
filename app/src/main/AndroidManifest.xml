@@ -42,6 +42,35 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <data android:mimeType="text/plain" />
             </intent-filter>
+            <!--
+              Visibility helpers. Since Android 11 an app (e.g. Gmail) only "sees" other apps
+              that match the intents it declares in its manifest <queries>. These filters never
+              match a real intent (no MIME type / a non-existent host), so they add no menu or
+              "Open with" entries; they only make this app visible to apps that query
+              PROCESS_TEXT without a type or https links with a wildcard host.
+            -->
+            <intent-filter>
+                <action android:name="android.intent.action.PROCESS_TEXT" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="fixgrammar.invalid" />
+            </intent-filter>
         </activity>
+
+        <!-- Quick Settings tile: fix the clipboard text (Copy, tap tile, Paste) -->
+        <service
+            android:name=".FixClipboardTileService"
+            android:exported="true"
+            android:icon="@drawable/ic_tile"
+            android:label="@string/menu_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
     </application>
 </manifest>
